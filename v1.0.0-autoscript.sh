@@ -149,7 +149,7 @@ rm -rf atomone
 git clone https://github.com/atomone-hub/atomone
 cd atomone
 git checkout v1.0.0
-make install
+make build
 
 mkdir -p ~/.atomone/cosmovisor/genesis/bin
 mv $HOME/atomone/build/atomoned ~/.atomone/cosmovisor/genesis/bin/
