@@ -144,23 +144,24 @@ echo $(go version) && sleep 1
 
 # Download Prysm protocol binary
 printGreen "3. Downloading Atomone binary and setting up..." && sleep 1
+
 cd $HOME
-rm -rf atomone
-git clone https://github.com/atomone-hub/atomone
-cd atomone
-git checkout v1.0.0
-make build
+wget -O $HOME/atomoned https://github.com/atomone-hub/atomone/releases/download/v3.0.1/atomoned-v3.0.1-linux-amd64
+chmod +x $HOME/atomoned
 
-mkdir -p ~/.atomone/cosmovisor/genesis/bin
-mv $HOME/atomone/build/atomoned ~/.atomone/cosmovisor/genesis/bin/
 
-sudo ln -s ~/.atomone/cosmovisor/genesis ~/.atomone/cosmovisor/current -f
-sudo ln -s ~/.atomone/cosmovisor/current/bin/atomoned /usr/local/bin/atomoned -f
+mkdir -p $HOME/.atomone/cosmovisor/upgrades/v3/bin
+sudo mv ./atomoned $HOME/.atomone/cosmovisor/upgrades/v3/bin/atomoned
+
+sudo systemctl stop atomoned
+
+sudo ln -sfn $HOME/.atomone/cosmovisor/upgrades/v3 $HOME/.atomone/cosmovisor/current
+sudo ln -sfn $HOME/.atomone/cosmovisor/current/bin/atomone /usr/local/bin/atomone
 
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.6.0
 
 # Create service file
-sudo tee /etc/systemd/system/atomoned.service > /dev/null << EOF
+sudo bash -c "cat > /etc/systemd/system/atomoned.service" << EOF
 [Unit]
 Description=atomone node service
 After=network-online.target
@@ -171,10 +172,10 @@ ExecStart=$(which cosmovisor) run start --home $HOME/.atomone
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
-Environment="DAEMON_HOME=${HOME}/.atomone"
+Environment="DAEMON_HOME=$HOME/.atomone"
 Environment="DAEMON_NAME=atomoned"
 Environment="UNSAFE_SKIP_BACKUP=true"
-Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:~/.atomone/cosmovisor/current/bin"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/.atomone/cosmovisor/current/bin"
 
 [Install]
 WantedBy=multi-user.target
