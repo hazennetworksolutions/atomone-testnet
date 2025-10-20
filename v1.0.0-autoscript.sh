@@ -156,7 +156,7 @@ sudo mv ./atomoned $HOME/.atomone/cosmovisor/upgrades/v3/bin/atomoned
 sudo systemctl stop atomoned
 
 sudo ln -sfn $HOME/.atomone/cosmovisor/upgrades/v3 $HOME/.atomone/cosmovisor/current
-sudo ln -sfn $HOME/.atomone/cosmovisor/current/bin/atomone /usr/local/bin/atomone
+sudo ln -sfn $HOME/.atomone/cosmovisor/current/bin/atomoned /usr/local/bin/atomoned
 
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.6.0
 
