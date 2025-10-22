@@ -153,7 +153,6 @@ chmod +x $HOME/atomoned
 mkdir -p $HOME/.atomone/cosmovisor/upgrades/v3/bin
 sudo mv ./atomoned $HOME/.atomone/cosmovisor/upgrades/v3/bin/atomoned
 
-sudo systemctl stop atomoned
 
 sudo ln -sfn $HOME/.atomone/cosmovisor/upgrades/v3 $HOME/.atomone/cosmovisor/current
 sudo ln -sfn $HOME/.atomone/cosmovisor/current/bin/atomoned /usr/local/bin/atomoned
