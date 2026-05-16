@@ -38,8 +38,8 @@
 - [Step 9 — Configure Ports, Gas Prices and Pruning](#step-9--configure-ports-gas-prices-and-pruning)
 - [Step 10 — Configure Seeds and Peers](#step-10--configure-seeds-and-peers)
 - [Step 11 — Start the Node](#step-11--start-the-node)
-- [Step 13 — Create a Wallet](#step-13--create-a-wallet)
-- [Step 14 — Register as a Validator](#step-14--register-as-a-validator)
+- [Step 12 — Create a Wallet](#step-12--create-a-wallet)
+- [Step 13 — Register as a Validator](#step-13--register-as-a-validator)
 - [Monitoring the Node](#monitoring-the-node)
 - [Useful Commands](#useful-commands)
 - [Staying Updated](#staying-updated)
@@ -328,10 +328,10 @@ Wait until `catching_up` is `false` before proceeding to validator registration.
 
 ---
 
-## Step 13 — Create a Wallet
+## Step 12 — Create a Wallet
 
 ```bash
-atomoned keys add $WALLET
+atomoned keys add wallet
 ```
 
 > ⚠️ **CRITICAL:** Save your mnemonic phrase in a secure location. Without it, you cannot recover your wallet.
@@ -339,27 +339,18 @@ atomoned keys add $WALLET
 To recover an existing wallet:
 
 ```bash
-atomoned keys add $WALLET --recover
-```
-
-Set the wallet variable:
-
-```bash
-echo "export WALLET=\"YOUR_WALLET_NAME\"" >> $HOME/.bash_profile
-source $HOME/.bash_profile
-WALLET_ADDRESS=$(atomoned keys show $WALLET -a)
-VALOPER_ADDRESS=$(atomoned keys show $WALLET --bech val -a)
+atomoned keys add wallet --recover
 ```
 
 Check your balance (after receiving testnet tokens):
 
 ```bash
-atomoned query bank balances $WALLET_ADDRESS
+atomoned query bank balances $(atomoned keys show wallet -a)
 ```
 
 ---
 
-## Step 14 — Register as a Validator
+## Step 13 — Register as a Validator
 
 > The node must be **fully synced** before creating a validator.
 
@@ -376,11 +367,11 @@ cat > $HOME/validator.json << EOF
 {
   "pubkey": $(atomoned comet show-validator),
   "amount": "1000000uatone",
-  "moniker": "$MONIKER",
+  "moniker": "YOUR_MONIKER",
   "identity": "",
   "website": "",
   "security": "",
-  "details": "AtomOne Validator by HazenNetworkSolutions",
+  "details": "",
   "commission-rate": "0.05",
   "commission-max-rate": "0.20",
   "commission-max-change-rate": "0.01",
@@ -393,7 +384,7 @@ EOF
 
 ```bash
 atomoned tx staking create-validator $HOME/validator.json \
-  --from $WALLET \
+  --from wallet \
   --chain-id atomone-testnet-1 \
   --gas auto \
   --gas-adjustment 1.4 \
@@ -404,7 +395,7 @@ atomoned tx staking create-validator $HOME/validator.json \
 ### Verify your validator:
 
 ```bash
-atomoned query staking validator $VALOPER_ADDRESS
+atomoned query staking validator $(atomoned keys show wallet --bech val -a)
 ```
 
 ---
@@ -459,26 +450,26 @@ sudo systemctl status atomoned
 atomoned keys list
 
 # Show wallet address
-atomoned keys show $WALLET -a
+atomoned keys show wallet -a
 
 # Check balance
-atomoned query bank balances $WALLET_ADDRESS
+atomoned query bank balances $(atomoned keys show wallet -a)
 ```
 
 ### Staking
 
 ```bash
 # Delegate tokens
-atomoned tx staking delegate $VALOPER_ADDRESS 1000000uatone \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+atomoned tx staking delegate $(atomoned keys show wallet --bech val -a) 1000000uatone \
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 
 # Redelegate tokens
-atomoned tx staking redelegate $VALOPER_ADDRESS <NEW_VALOPER> 1000000uatone \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+atomoned tx staking redelegate $(atomoned keys show wallet --bech val -a) <NEW_VALOPER> 1000000uatone \
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 
 # Undelegate tokens
-atomoned tx staking unbond $VALOPER_ADDRESS 1000000uatone \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+atomoned tx staking unbond $(atomoned keys show wallet --bech val -a) 1000000uatone \
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 ```
 
 ### Rewards
@@ -486,11 +477,11 @@ atomoned tx staking unbond $VALOPER_ADDRESS 1000000uatone \
 ```bash
 # Withdraw all rewards
 atomoned tx distribution withdraw-all-rewards \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 
 # Withdraw commission
-atomoned tx distribution withdraw-rewards $VALOPER_ADDRESS --commission \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+atomoned tx distribution withdraw-rewards $(atomoned keys show wallet --bech val -a) --commission \
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 ```
 
 ### Governance
@@ -501,7 +492,7 @@ atomoned query gov proposals
 
 # Vote on a proposal
 atomoned tx gov vote 1 yes \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 ```
 
 ### Validator Operations
@@ -511,11 +502,11 @@ atomoned tx gov vote 1 yes \
 atomoned tx staking edit-validator \
   --new-moniker "NEW_MONIKER" \
   --identity "" \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 
 # Unjail validator
 atomoned tx slashing unjail \
-  --from $WALLET --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
+  --from wallet --chain-id atomone-testnet-1 --gas auto --gas-adjustment 1.4 --fees 500uatone -y
 
 # Check validator signing info
 atomoned query slashing signing-info $(atomoned comet show-validator)
@@ -544,7 +535,4 @@ Cosmovisor will automatically switch to the new binary at the upgrade block heig
 
 ---
 
-## About the Author
-
-This guide was prepared by **HazenNetworkSolutions**.  
-🌐 [hazennetworksolutions.com](https://hazennetworksolutions.com)
+*Guide maintained by [HazenNetworkSolutions](https://hazennetworksolutions.com)*
