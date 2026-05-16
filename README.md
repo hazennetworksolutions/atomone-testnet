@@ -37,8 +37,7 @@
 - [Step 8 — Download Genesis and Addrbook](#step-8--download-genesis-and-addrbook)
 - [Step 9 — Configure Ports, Gas Prices and Pruning](#step-9--configure-ports-gas-prices-and-pruning)
 - [Step 10 — Configure Seeds and Peers](#step-10--configure-seeds-and-peers)
-- [Step 11 — Download Snapshot](#step-11--download-snapshot)
-- [Step 12 — Start the Node](#step-12--start-the-node)
+- [Step 11 — Start the Node](#step-11--start-the-node)
 - [Step 13 — Create a Wallet](#step-13--create-a-wallet)
 - [Step 14 — Register as a Validator](#step-14--register-as-a-validator)
 - [Monitoring the Node](#monitoring-the-node)
@@ -304,42 +303,7 @@ sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*seeds *=.*/seeds = \"$SEEDS\"/}" \
 
 ---
 
-## Step 11 — Download Snapshot
-
-Syncing from genesis takes a very long time. Use a snapshot to speed up the process:
-
-```bash
-sudo systemctl stop atomoned
-
-# Back up validator state
-cp $HOME/.atomone/data/priv_validator_state.json $HOME/.atomone/priv_validator_state.json.backup
-
-# Reset data directory
-atomoned tendermint unsafe-reset-all --home $HOME/.atomone --keep-addr-book
-```
-
-Download and apply the snapshot:
-
-```bash
-SNAPSHOT_URL="https://server-2.itrocket.net/testnet/atomone/"
-
-# List available snapshots
-curl -s $SNAPSHOT_URL | grep -o '"atomone_[^"]*"' | head -5
-
-# Download the latest snapshot (replace FILENAME with the latest one from the list above)
-FILENAME="atomone_LATEST.tar.lz4"
-curl -o - -L $SNAPSHOT_URL$FILENAME | lz4 -c -d - | tar -x -C $HOME/.atomone
-```
-
-Restore validator state:
-
-```bash
-mv $HOME/.atomone/priv_validator_state.json.backup $HOME/.atomone/data/priv_validator_state.json
-```
-
----
-
-## Step 12 — Start the Node
+## Step 11 — Start the Node
 
 ```bash
 sudo systemctl start atomoned
